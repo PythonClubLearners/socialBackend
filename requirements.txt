@@ -1,0 +1,6 @@
+Django~=4.2.13
+django-cors-headers
+djangorestframework
+drf-yasg
+Pillow
+requests
