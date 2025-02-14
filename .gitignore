@@ -2,3 +2,4 @@
 /config.json
 /media/
 /custom_wsgi.py/
+.idea/**
