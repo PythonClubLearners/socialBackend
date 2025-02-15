@@ -71,6 +71,9 @@ class User(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
+    def __str__(self) -> str:
+        return " ".join((self.first_name, self.last_name)).strip() or self.username
+
 
 class UserFriend(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_friends', verbose_name='Пользователь')
@@ -83,7 +86,7 @@ class UserFriend(models.Model):
         verbose_name = 'Друг'
         verbose_name_plural = 'Друзья'
 
-        unique_together = ('user', 'friend')
+        unique_together = [['user', 'friend']]
 
 
     @classmethod
