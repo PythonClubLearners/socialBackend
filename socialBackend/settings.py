@@ -30,6 +30,7 @@ DEBUG = bool(os.environ.get('LOCALDEV', False))
 
 ALLOWED_HOSTS = [
     "localhost",
+    "iknwnthepassword.pythonanywhere.com"
 ]
 
 
