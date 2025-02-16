@@ -24,6 +24,7 @@ def get_request_data(request: HttpRequest) -> dict:
 error_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     title='Ошибка',
+    required=['message'],
     properties={
         'message': openapi.Schema(type=openapi.TYPE_STRING, title='Текст ошибки')
     }
@@ -32,6 +33,7 @@ error_schema = openapi.Schema(
 success_schema = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     title='Успех',
+    required=['message'],
     properties={
         'message': openapi.Schema(type=openapi.TYPE_STRING, title='Текст успеха')
     }
@@ -100,9 +102,10 @@ def get_user_posts_view(request, user_id):
         200: openapi.Schema(
             type=openapi.TYPE_OBJECT,
             title='Успешно созданный пост',
+            required=['message', 'post_id'],
             properties={
                 'message': openapi.Schema(type=openapi.TYPE_STRING, title='Пост создан'),
-                'post_id': openapi.Schema(type=openapi.TYPE_STRING, title='id нового поста'),
+                'post_id': openapi.Schema(type=openapi.TYPE_INTEGER, title='id нового поста'),
             }
         ),
         400: error_schema,
@@ -113,6 +116,7 @@ def get_user_posts_view(request, user_id):
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         required=['title'],
+        # format=openapi.,
         properties={
             'title': openapi.Schema(type=openapi.TYPE_STRING, title='Заголовок'),
             'description': openapi.Schema(type=openapi.TYPE_STRING, title='Текст поста'),

@@ -14,8 +14,9 @@ class Post(models.Model):
     schema = openapi.Schema(
         type=openapi.TYPE_OBJECT,
         title='Пост',
-        required=['title', 'description', 'created_date', 'author'],
+        required=['id', 'title', 'description', 'created_date', 'author'],
         properties={
+            'id': openapi.Schema(type=openapi.TYPE_INTEGER, title='ID поста'),
             'title': openapi.Schema(type=openapi.TYPE_STRING, title='Заголовок'),
             'description': openapi.Schema(type=openapi.TYPE_STRING, title='Описание'),
             'created_date': openapi.Schema(type=openapi.TYPE_NUMBER, title='Дата создания', description='Количество секунд с начала эпохи UNIX'),
@@ -35,6 +36,7 @@ class Post(models.Model):
     @property
     def json(self):
         return {
+            'id': self.id,
             'title': self.title,
             'description': self.description,
             'created_date': self.created_date.timestamp(),
