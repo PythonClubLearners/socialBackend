@@ -4,7 +4,7 @@ import typing
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse, HttpRequest, RawPostDataException
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie as ensure_csrf_cookie_base
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
@@ -12,6 +12,16 @@ from rest_framework.decorators import api_view
 from api.models import Post
 from users.models import User, UserFriend
 
+
+def ensure_csrf_cookie(view):
+
+    @ensure_csrf_cookie_base
+    def wrapper(request, *args, **kwargs):
+        response = view(request, *args, **kwargs)
+        response.set_cookie('csrftoken', request.META['CSRF_COOKIE'])
+        return response
+
+    return wrapper
 
 def get_request_data(request: HttpRequest) -> dict:
     try:
