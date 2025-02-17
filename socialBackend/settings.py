@@ -144,6 +144,9 @@ CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
 CORS_ALLOW_CREDENTIALS = True
 # CSRF_COOKIE_DOMAIN = "localhost"
+CORS_EXPOSE_HEADERS = [
+    'X-CSRFToken',  # Добавить заголовки, которые нужно выставить для JavaScript
+]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
