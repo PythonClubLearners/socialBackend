@@ -18,7 +18,7 @@ def ensure_csrf_cookie(view):
     @ensure_csrf_cookie_base
     def wrapper(request, *args, **kwargs):
         response = view(request, *args, **kwargs)
-        response.set_cookie('csrftoken', request.META['CSRF_COOKIE'])
+        response.set_cookie('csrftokenlocal', request.META['CSRF_COOKIE'])
         return response
 
     return wrapper
