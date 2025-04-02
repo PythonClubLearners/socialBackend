@@ -18,7 +18,6 @@ def ensure_csrf_cookie(view):
     @ensure_csrf_cookie_base
     def wrapper(request, *args, **kwargs):
         response = view(request, *args, **kwargs)
-        # response.set_cookie('csrftokenlocal', request.META['CSRF_COOKIE'], domain="localhost")
         response['X-CSRFToken'] = request.META['CSRF_COOKIE']
         return response
 
@@ -239,7 +238,7 @@ def user_login_view(request):
     if username is None or password is None:
         return JsonResponse({'error': 'Не указан логин или пароль'}, status=400)
 
-    user = authenticate(request, username=username.lower(), password=password)
+    user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
         return JsonResponse({"message": "Вход подтвержден"})
@@ -449,3 +448,98 @@ def accept_friend_view(request):
         return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'message': 'Запрос принят'})
+
+@swagger_auto_schema(
+    operation_summary='Отклонение запроса в друзья',
+    operation_description='Отклоняет запрос в друзья текущему пользователю от указанного user_id. Текущий '
+                          'пользователь должен быть авторизован',
+    methods=['POST'],
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['user_id'],
+        properties={
+            'user_id': openapi.Schema(type=openapi.TYPE_INTEGER, title='id пользователя')
+        }
+    ),
+    responses={
+        200: success_schema,
+        400: error_schema,
+        403: error_schema,
+        404: error_schema,
+        500: error_schema,
+    }
+)
+@api_view(['POST'])
+@ensure_csrf_cookie
+def reject_friend_view(request):
+    try:
+        data = get_request_data(request)
+        success, result = get_users_pair(request, data)
+        if not success:
+            return result
+        friend, user = result
+
+        try:
+            user_friend = UserFriend.objects.get(user=user, friend=friend, is_friend=False)
+        except UserFriend.DoesNotExist:
+            return JsonResponse({'error': 'Запрос не найден'}, status=404)
+        user_friend.delete()
+        user_friend.save()
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'message': 'Запрос в друзья отклонён'})
+
+@swagger_auto_schema(
+    operation_summary='Обновление пользователя',
+    operation_description='Попытка обновления. Пользователь должен быть авторизован. Описание и изображения '
+                          'могут быть пустыми',
+    methods=['POST'],
+    responses={
+        200: success_schema,
+        400: error_schema,
+        403: error_schema,
+        404: error_schema,
+        500: error_schema,
+    },
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        # format=openapi.,
+        properties={
+            'description': openapi.Schema(type=openapi.TYPE_STRING, title='Текст поста'),
+            'image': openapi.Schema(type=openapi.TYPE_FILE, title='Изображение')
+        }
+    )
+)
+@api_view(['POST'])
+@ensure_csrf_cookie
+def update_user_view(request):
+    try:
+
+        user: User = request.user
+
+        if not user.is_authenticated:
+            return JsonResponse({'error': 'Пользователь не авторизован'}, status=403)
+
+        data = get_request_data(request)
+
+        description = data.get('description', '')
+        image = request.FILES.get('image', None)
+
+        user.description = description if description else user.description
+
+        user.image = image if image else user.image
+
+        try:
+            user.full_clean()
+        except ValidationError as e:
+            return JsonResponse({'error': e.message_dict}, status=400)
+
+        user.save()
+
+        return JsonResponse({'message': 'Пользователь обновлен'}, status=200)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+

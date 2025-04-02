@@ -17,4 +17,6 @@ urlpatterns = [
     path('users/get/me/friends-requests-send/', views.user_friends_requests_send_view, name='friends-requests-send'),
     path('users/make-friend/', views.make_friend_view, name='make-friend'),
     path('users/accept-friend/', views.accept_friend_view, name='accept-friend'),
+    path('users/reject-friend/', views.reject_friend_view, name='reject-friend'),
+    path('users/update-profile/', views.update_user_view, name='update-profile'),
 ]
